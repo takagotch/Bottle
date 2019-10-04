@@ -12,15 +12,18 @@ from bottle import _re_flatten
 class TestReFlatten(unittest.TestCase):
 
   def test_re_flatten(self):
-    self.assertEqual()
-    self.assertEqual()
+    self.assertEqual(_re_flatten(r"(?:aaa)(_bbb)"), '(?:aaa)(?:_bbb)')
+    self.assertEqual(_re_flatten(r"(aaa)(_bbb)"), '(?:aaa)(?_bbb)')
+    self.assertEqual(_re_flatten(r"aaa)(_bbb"), 'aaa)(?:_bbb)')
+    self.assertEqual(_re_flatten(r"aaa(_bbb"), 'aaa(?:_bbb)')
+    self.assertEqual(_re_flatten(r"aaa_bbb"), 'aaa_bbb')
     
 class TestRoute(unittest.TestCase):
   
   @api('0.12')
   def test_callback_inspection(self):
-    def x(): pass
-    def d():
+    def x(a, b): pass
+    def d(f):
       def w():
         return f()
       return w
@@ -59,7 +62,7 @@ class TestRoute(unittest.TestCase):
 if bottle.py3k:
   def test_callback_inspection_newsig(self):
     env = {}
-    eval(compile('def foo(a, *, b=5): pass', '', ''), env, env)
+    eval(compile('def foo(a, *, b=5): pass', '<foo>', 'exec'), env, env)
     route = bottle.Route(bottle.Bottle(), None, None, env['foo'])
     self.assertEqual(set(route.get_callback_args()), set(['a', 'b']))
 ```
